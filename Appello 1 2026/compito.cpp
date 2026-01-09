@@ -96,7 +96,7 @@ bool CasaDiCura::aggiungiFarmaco(int idOspite, char nome[], int orario) {
     if (idOspite < 1 || idOspite > nOspiti) {
         return false;
     }
-    if (strlen(nome) > 15) {
+    if (strlen(nome) == 0 || strlen(nome) > 15) {
         return false;
     }
     if (orario < 0 || orario > 23) {
@@ -145,7 +145,7 @@ CasaDiCura::~CasaDiCura() {
     delete[] ospiti;
 }
 
-CasaDiCura &CasaDiCura::rimuoviFarmaco(int idOspite, const char nome[]) {
+CasaDiCura CasaDiCura::rimuoviFarmaco(int idOspite, const char nome[]) {
     if (idOspite < 1 || idOspite > nOspiti) {
         return *this;
     }
@@ -154,17 +154,18 @@ CasaDiCura &CasaDiCura::rimuoviFarmaco(int idOspite, const char nome[]) {
     }
     for (int i = 0; i < ospiti[idOspite-1].nFarmaci; i++) {
         if (strcmp(ospiti[idOspite-1].farmaci[i].nome, nome) == 0) {
-            Farmaco* farmaci = new Farmaco[ospiti[idOspite-1].nFarmaci-1];
+            CasaDiCura cc = *this;
+            Farmaco* farmaci = new Farmaco[cc.ospiti[idOspite-1].nFarmaci-1];
             for (int j = 0; j < i; j++) {
-                farmaci[j] = ospiti[idOspite-1].farmaci[j];
+                farmaci[j] = cc.ospiti[idOspite-1].farmaci[j];
             }
-            for (int j = i+1; j < ospiti[idOspite-1].nFarmaci; j++) {
-                farmaci[j-1] = ospiti[idOspite-1].farmaci[j];
+            for (int j = i+1; j < cc.ospiti[idOspite-1].nFarmaci; j++) {
+                farmaci[j-1] = cc.ospiti[idOspite-1].farmaci[j];
             }
-            delete[] ospiti[idOspite-1].farmaci;
-            ospiti[idOspite-1].farmaci = farmaci;
-            ospiti[idOspite-1].nFarmaci--;
-            return *this;
+            delete[] cc.ospiti[idOspite-1].farmaci;
+            cc.ospiti[idOspite-1].farmaci = farmaci;
+            cc.ospiti[idOspite-1].nFarmaci--;
+            return cc;
         }
     }
     return *this;

@@ -27,7 +27,7 @@ public:
     bool aggiungiFarmaco(int idOspite, char nome[], int orario);
     bool assumiFarmaci(int idOspite, int orario);
     ~CasaDiCura();
-    CasaDiCura& rimuoviFarmaco(int idOspite, const char nome[]);
+    CasaDiCura rimuoviFarmaco(int idOspite, const char nome[]);
     CasaDiCura& operator!();
 };
 
