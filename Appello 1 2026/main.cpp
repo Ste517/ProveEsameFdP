@@ -17,7 +17,6 @@ int main() {
     cc.assumiFarmaci(2, 18);
     cout << endl << cc;
 
-    
 	cout << endl << "--- SECONDA PARTE ---" << endl;
 	
     cout << "Test costruttore di copia" << endl;
@@ -38,7 +37,5 @@ int main() {
     !cc;
     cout << endl << cc;
 
-
-    cout << endl << "--- 
     // TERZA PARTE RIMOSSA AUTOMATICAMENTE
 }

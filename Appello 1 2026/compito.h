@@ -9,12 +9,26 @@ struct Farmaco {
     bool assunto;
 };
 
+struct Ospite {
+    unsigned int id;
+    unsigned int nFarmaci;
+    Farmaco* farmaci;
+};
+
 class CasaDiCura {
-    char nome[21];
+    char nome[21]{};
     int nOspiti;
+    Ospite* ospiti;
 public:
     CasaDiCura(const char nome[], int numeroOspiti);
-    friend ostream& operator<<(ostream& os, CasaDiCura cc);
+    CasaDiCura(const CasaDiCura&);
+    CasaDiCura& operator=(const CasaDiCura&);
+    friend ostream& operator<<(ostream& os, const CasaDiCura& cc);
+    bool aggiungiFarmaco(int idOspite, char nome[], int orario);
+    bool assumiFarmaci(int idOspite, int orario);
+    ~CasaDiCura();
+    CasaDiCura& rimuoviFarmaco(int idOspite, const char nome[]);
+    CasaDiCura& operator!();
 };
 
 
