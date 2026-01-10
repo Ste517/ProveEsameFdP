@@ -5,6 +5,16 @@
 
 using namespace std;
 
+UfficioPostale::UfficioPostale() {
+    nSportelli = 2;
+    sportelli = new Sportello[nSportelli];
+    for (int i = 0; i < nSportelli; i++) {
+        sportelli[i].primoUtente = nullptr;
+        sportelli[i].nUtenti = 0;
+        sportelli[i].nUtentiPrioritari = 0;
+    }
+}
+
 UfficioPostale::UfficioPostale(int M) {
     if (M < 2) {
         M = 2;
@@ -49,16 +59,15 @@ void UfficioPostale::accodaUtente(const char nome[], int numeroSportello) {
     if (numeroSportello < 1 || numeroSportello > nSportelli) {
         return;
     }
+    if (strlen(nome) > 25 || strlen(nome) == 0) {
+        return;
+    }
     if (sportelli[numeroSportello-1].primoUtente == nullptr) {
         sportelli[numeroSportello-1].primoUtente = new Utente;
         sportelli[numeroSportello-1].primoUtente->prioritario = false;
         sportelli[numeroSportello-1].primoUtente->prossimoUtente = nullptr;
-        if (strlen(nome) > 25) {
-            strncpy(sportelli[numeroSportello-1].primoUtente->nome,nome, 25);
-            sportelli[numeroSportello-1].primoUtente->nome[25] = '\0';
-        } else {
-            strcpy(sportelli[numeroSportello-1].primoUtente->nome,nome);
-        }
+        strcpy(sportelli[numeroSportello-1].primoUtente->nome,nome);
+        sportelli[numeroSportello-1].nUtenti++;
         return;
     }
     Utente* utente = sportelli[numeroSportello-1].primoUtente;
@@ -70,12 +79,7 @@ void UfficioPostale::accodaUtente(const char nome[], int numeroSportello) {
     utente = utente->prossimoUtente;
     utente->prioritario = false;
     utente->prossimoUtente = nullptr;
-    if (strlen(nome) > 25) {
-        strncpy(utente->nome,nome, 25);
-        utente->nome[25] = '\0';
-    } else {
-        strcpy(utente->nome,nome);
-    }
+    strcpy(utente->nome,nome);
     sportelli[numeroSportello-1].nUtenti++;
 }
 
@@ -105,45 +109,141 @@ UfficioPostale::~UfficioPostale() {
 }
 
 void UfficioPostale::accodaPrioritario(const char nome[]) {
-    int numeroSportello = 0;
-    int minPrioritari = sportelli[0].nUtentiPrioritari;
-    for (int i = 0; i < nSportelli; i++) {
+    if (strlen(nome) > 25) {
+        return;
+    }
+    unsigned int numeroSportello = 0;
+    unsigned long long int minPrioritari = sportelli[0].nUtentiPrioritari;
+    for (unsigned int i = 1; i < nSportelli; i++) {
         if (minPrioritari > sportelli[i].nUtentiPrioritari) {
             minPrioritari = sportelli[i].nUtentiPrioritari;
+            numeroSportello = i;
         }
     }
     if (sportelli[numeroSportello].primoUtente == nullptr) {
         sportelli[numeroSportello].primoUtente = new Utente;
-        sportelli[numeroSportello].primoUtente->prioritario = false;
+        sportelli[numeroSportello].primoUtente->prioritario = true;
         sportelli[numeroSportello].primoUtente->prossimoUtente = nullptr;
-        if (strlen(nome) > 25) {
-            strncpy(sportelli[numeroSportello].primoUtente->nome,nome, 25);
-            sportelli[numeroSportello].primoUtente->nome[25] = '\0';
-        } else {
-            strcpy(sportelli[numeroSportello].primoUtente->nome,nome);
-        }
+        strcpy(sportelli[numeroSportello].primoUtente->nome,nome);
+        sportelli[numeroSportello].nUtenti++;
+        sportelli[numeroSportello].nUtentiPrioritari++;
         return;
     }
     Utente* utente = sportelli[numeroSportello].primoUtente;
-    while (utente->prossimoUtente != nullptr) {
+    while (utente != nullptr) {
         if (strcmp(nome,utente->nome) == 0) return;
         utente = utente->prossimoUtente;
     }
-    utente->prossimoUtente = new Utente;
-    utente = utente->prossimoUtente;
-    utente->prioritario = false;
-    utente->prossimoUtente = nullptr;
-    if (strlen(nome) > 25) {
-        strncpy(utente->nome,nome, 25);
-        utente->nome[25] = '\0';
+
+    utente = sportelli[numeroSportello].primoUtente;
+
+    Utente* nuovo_utente = new Utente;
+    nuovo_utente->prioritario = true;
+    strcpy(nuovo_utente->nome,nome);
+
+    if (!(utente->prioritario)) {
+        nuovo_utente->prossimoUtente = utente;
+        sportelli[numeroSportello].primoUtente = nuovo_utente;
     } else {
-        strcpy(utente->nome,nome);
+        while (utente->prossimoUtente != nullptr && utente->prossimoUtente->prioritario) {
+            utente = utente->prossimoUtente;
+        }
+        nuovo_utente->prossimoUtente = utente->prossimoUtente;
+        utente->prossimoUtente = nuovo_utente;
     }
     sportelli[numeroSportello].nUtenti++;
+    sportelli[numeroSportello].nUtentiPrioritari++;
 }
 
+void UfficioPostale::passaAvanti(char nome[], long long int numeroSportello, int nPosizioni) {
+    if (strlen(nome)>25) return;
+    if (numeroSportello < 1 || numeroSportello > nSportelli) return;
+    numeroSportello--;
+    Utente* utente = sportelli[numeroSportello].primoUtente;
+    unsigned long long int counter = 0;
+    while ((utente != nullptr) && (strcmp(nome, utente->nome) != 0)) {
+        utente = utente->prossimoUtente;
+        counter++;
+    }
+    if (counter-nPosizioni < 0) return;
 
+    Utente* base_pointer = sportelli[numeroSportello].primoUtente;
+    utente = sportelli[numeroSportello].primoUtente;
+    for (unsigned long long int i = 0; i < counter-1; i++) {
+        if (counter-nPosizioni==i+1) {
+            base_pointer = utente;
+        }
+        utente = utente->prossimoUtente;
+    }
+    Utente* cella = utente->prossimoUtente;
+    utente->prossimoUtente = utente->prossimoUtente->prossimoUtente;
+    if (counter-nPosizioni == 0) {
+        cella->prossimoUtente = sportelli[numeroSportello].primoUtente;
+        sportelli[numeroSportello].primoUtente = cella;
+        if (cella->prossimoUtente->prioritario) {
+            cella->prioritario = true;
+        }
+        return;
+    }
+    cella->prossimoUtente = base_pointer->prossimoUtente;
+    base_pointer->prossimoUtente = cella;
+    if (cella->prossimoUtente->prioritario) {
+        cella->prioritario = true;
+    }
+}
 
+UfficioPostale& UfficioPostale::operator!() {
+    for (unsigned int i = 0; i < nSportelli; i++) {
+        Utente* current = sportelli[i].primoUtente;
+        
+        Utente* headPrio = nullptr;
+        Utente* tailPrio = nullptr;
+        Utente* headStd = nullptr;
+        Utente* tailStd = nullptr;
+        
+        unsigned long long int countPrio = 0;
 
+        while (current != nullptr) {
+            Utente* next = current->prossimoUtente; 
+            
+            
+            current->prioritario = !current->prioritario;
+            current->prossimoUtente = nullptr; 
 
+            if (current->prioritario) {
+                
+                if (headPrio == nullptr) {
+                    headPrio = current;
+                } else {
+                    tailPrio->prossimoUtente = current;
+                }
+                tailPrio = current;
+                countPrio++;
+            } else {
+                
+                if (headStd == nullptr) {
+                    headStd = current;
+                } else {
+                    tailStd->prossimoUtente = current;
+                }
+                tailStd = current;
+            }
+            
+            current = next; 
+        }
 
+        
+        if (headPrio != nullptr) {
+            sportelli[i].primoUtente = headPrio;
+            tailPrio->prossimoUtente = headStd; 
+        } else {
+            sportelli[i].primoUtente = headStd;
+        }
+
+        
+        sportelli[i].nUtentiPrioritari = countPrio;
+        
+    }
+
+    return *this;
+}

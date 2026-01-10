@@ -45,7 +45,6 @@ int main() {
     cout << "Test funzione accodaPrioritario" << endl << endl;
     cout << up << endl << endl << endl;
 
-    /*
     //faccio passare avanti Biondi e Verdi (che diventa prioritario)
     up.passaAvanti("Chiara Biondi", 1, 1);
     up.passaAvanti("Giuseppe Verdi", 2, 1);
@@ -57,12 +56,11 @@ int main() {
 
     //applico l'operatore di negazione logica su up
 
-
     !up;
 
 
     cout << "Test operatore di negazione" << endl << endl;
     cout << up << endl << endl << endl;
-    */
+
     // TERZA PARTE RIMOSSA AUTOMATICAMENTE
 }
