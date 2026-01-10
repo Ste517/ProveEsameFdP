@@ -84,3 +84,27 @@ foreach ($url in $urls) {
         Write-Host "Error downloading from ${url}: $($_.Exception.Message)"
     }
 }
+
+if ($solution -ne "s" -and $solution -ne "S") {
+    $hPath = Join-Path -Path $destPath -ChildPath "compito.h"
+    if (-not (Test-Path -Path $hPath)) {
+        $hContent = "#ifndef COMPITO_H`n#define COMPITO_H`n`n// Inserisci qui il codice`n`n#endif // COMPITO_H"
+        Set-Content -Path $hPath -Value $hContent
+        Write-Host "Creato compito.h"
+    }
+
+    $cppPath = Join-Path -Path $destPath -ChildPath "compito.cpp"
+    if (-not (Test-Path -Path $cppPath)) {
+        $cppContent = "#include ""compito.h""`n#include <iostream>`n`nusing namespace std;`n`n// Inserisci qui il codice"
+        Set-Content -Path $cppPath -Value $cppContent
+        Write-Host "Creato compito.cpp"
+    }
+
+    $cmakePath = Join-Path -Path $destPath -ChildPath "CMakeLists.txt"
+    if (-not (Test-Path -Path $cmakePath)) {
+        $projName = "Appello_${appello}_${year}"
+        $cmakeContent = "cmake_minimum_required(VERSION 4.0)`nproject($projName)`n`nset(CMAKE_CXX_STANDARD 23)`n`nadd_executable($projName main.cpp`n        compito.cpp`n)"
+        Set-Content -Path $cmakePath -Value $cmakeContent
+        Write-Host "Creato CMakeLists.txt"
+    }
+}
