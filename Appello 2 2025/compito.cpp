@@ -8,7 +8,7 @@ using namespace std;
 UfficioPostale::UfficioPostale() {
     nSportelli = 2;
     sportelli = new Sportello[nSportelli];
-    for (int i = 0; i < nSportelli; i++) {
+    for (unsigned int i = 0; i < nSportelli; i++) {
         sportelli[i].primoUtente = nullptr;
         sportelli[i].nUtenti = 0;
         sportelli[i].nUtentiPrioritari = 0;
@@ -21,7 +21,7 @@ UfficioPostale::UfficioPostale(int M) {
     }
     nSportelli = M;
     sportelli = new Sportello[nSportelli];
-    for (int i = 0; i < nSportelli; i++) {
+    for (unsigned int i = 0; i < nSportelli; i++) {
         sportelli[i].primoUtente = nullptr;
         sportelli[i].nUtenti = 0;
         sportelli[i].nUtentiPrioritari = 0;
@@ -31,32 +31,34 @@ UfficioPostale::UfficioPostale(int M) {
 ostream &operator<<(ostream &os, const UfficioPostale &up) {
     unsigned long long int nUtenti = 0;
     unsigned long long int nUtentiPrioritari = 0;
-    for (int i = 0; i < up.nSportelli; i++) {
+    for (unsigned int i = 0; i < up.nSportelli; i++) {
         nUtenti += up.sportelli[i].nUtenti;
         nUtentiPrioritari += up.sportelli[i].nUtentiPrioritari;
     }
     os << "Utenti totali: " << nUtenti << endl;
     os << "Prioritari: " << nUtentiPrioritari << endl;
-    for (int i = 0; i < up.nSportelli; i++) {
+    for (unsigned int i = 0; i < up.nSportelli; i++) {
         os << "- Sportello " << i+1 << ":";
         Utente* utente = up.sportelli[i].primoUtente;
         while (utente != nullptr) {
             os << " " << utente->nome;
             if (utente->prioritario) {
-                os << "(P)";
+                os << " (P)";
             }
             if (utente->prossimoUtente != nullptr) {
                 os << ",";
             }
             utente = utente->prossimoUtente;
         }
-        os << endl;
+        if (i < up.nSportelli-1) {
+            os << endl;
+        }
     }
     return os;
 }
 
 void UfficioPostale::accodaUtente(const char nome[], int numeroSportello) {
-    if (numeroSportello < 1 || numeroSportello > nSportelli) {
+    if (numeroSportello < 1 || (unsigned int)numeroSportello > nSportelli) {
         return;
     }
     if (strlen(nome) > 25 || strlen(nome) == 0) {
@@ -84,13 +86,14 @@ void UfficioPostale::accodaUtente(const char nome[], int numeroSportello) {
 }
 
 void UfficioPostale::serviUtente(int numeroSportello) {
-    if (numeroSportello < 1 || numeroSportello > nSportelli) {
+    if (numeroSportello < 1 || (unsigned int)numeroSportello > nSportelli) {
         return;
     }
     if (sportelli[numeroSportello-1].primoUtente == nullptr) {
         return;
     }
     Utente* user = sportelli[numeroSportello-1].primoUtente->prossimoUtente;
+    if (sportelli[numeroSportello-1].primoUtente->prioritario) sportelli[numeroSportello-1].nUtentiPrioritari--;
     delete sportelli[numeroSportello-1].primoUtente;
     sportelli[numeroSportello-1].primoUtente = user;
     sportelli[numeroSportello-1].nUtenti--;
@@ -98,7 +101,7 @@ void UfficioPostale::serviUtente(int numeroSportello) {
 
 UfficioPostale::~UfficioPostale() {
     Utente* utente;
-    for (int i = 0; i < nSportelli; i++) {
+    for (unsigned int i = 0; i < nSportelli; i++) {
         while (sportelli[i].primoUtente != nullptr) {
             utente = sportelli[i].primoUtente->prossimoUtente;
             delete sportelli[i].primoUtente;
@@ -155,16 +158,21 @@ void UfficioPostale::accodaPrioritario(const char nome[]) {
     sportelli[numeroSportello].nUtentiPrioritari++;
 }
 
-void UfficioPostale::passaAvanti(char nome[], long long int numeroSportello, int nPosizioni) {
+void UfficioPostale::passaAvanti(const char nome[], long long int numeroSportello, int nPosizioni) {
     if (strlen(nome)>25) return;
     if (numeroSportello < 1 || numeroSportello > nSportelli) return;
     numeroSportello--;
     Utente* utente = sportelli[numeroSportello].primoUtente;
     unsigned long long int counter = 0;
-    while ((utente != nullptr) && (strcmp(nome, utente->nome) != 0)) {
+    bool trovato = false;
+    while (utente != nullptr) {
+        if (strcmp(utente->nome, nome) == 0) {
+            trovato = true;
+        }
         utente = utente->prossimoUtente;
         counter++;
     }
+    if (!trovato) return;
     if (counter-nPosizioni < 0) return;
 
     Utente* base_pointer = sportelli[numeroSportello].primoUtente;
@@ -182,6 +190,7 @@ void UfficioPostale::passaAvanti(char nome[], long long int numeroSportello, int
         sportelli[numeroSportello].primoUtente = cella;
         if (cella->prossimoUtente->prioritario) {
             cella->prioritario = true;
+            sportelli[numeroSportello].nUtentiPrioritari++;
         }
         return;
     }

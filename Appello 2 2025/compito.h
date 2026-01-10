@@ -27,7 +27,7 @@ public:
     void serviUtente(int numeroSportello);
     ~UfficioPostale();
     void accodaPrioritario(const char nome[]);
-    void passaAvanti(char nome[], long long int nSportello, int nPosizioni); // uso long long int consapevole che unsigned long long int tenga il doppio dei numeri, ma altrimenti la sanitizzazione sarebbe impossibile
+    void passaAvanti(const char nome[], long long int nSportello, int nPosizioni); // uso long long int consapevole che unsigned long long int tenga il doppio dei numeri, ma altrimenti la sanitizzazione sarebbe impossibile
     UfficioPostale& operator!();
 };
 
