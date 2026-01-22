@@ -14,6 +14,8 @@ import tempfile
 import shutil
 import traceback
 
+AI_DISABLED = True
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -32,6 +34,8 @@ class OllamaAnalyzer:
         self.available = self.check_availability()
 
     def check_availability(self):
+        if AI_DISABLED:
+            return False
         try:
             response = requests.get(f"{self.base_url}/api/tags", timeout=2)
             if response.status_code == 200:
@@ -131,15 +135,15 @@ Analizza SOLO il codice, non l'output atteso mancante."""
 
             response = requests.post(
                 f"{self.base_url}/api/generate",
-                json={{
+                json={
                     "model": self.model,
                     "prompt": prompt,
                     "stream": False,
-                    "options": {{
+                    "options": {
                         "temperature": 0.3,
                         "num_predict": 1000
-                    }}
-                }},
+                    }
+                },
                 timeout=90
             )
 
@@ -860,21 +864,30 @@ def health_check():
 
 if __name__ == '__main__':
     print("\n" + "="*70)
-    print("🚀 FdP AutoCorrezione Server - v7.2 (AI Code Analysis)")
-    print("="*70)
-    print("📍 Server: http://localhost:5000")
-    print("✨ Features:")
-    print("   • Ultra-robust PDF parser")
-    print("   • 🤖 AI code analysis for TERZA PARTE")
-    print("   • Improved section extraction (80% threshold)")
-    print("   • Dark/Light mode + Markdown AI")
-    print("   • 🛡️  ASan memory error detection")
-
-    analyzer = OllamaAnalyzer()
-    if analyzer.available:
-        print(f"   • 🤖 AI: ENABLED (code verification active)")
+    if not AI_DISABLED:
+        print("🚀 FdP AutoCorrezione Server - v7.2 (AI Code Analysis)")
+        print("="*70)
+        print("📍 Server: http://localhost:5000")
+        print("✨ Features:")
+        print("   • Ultra-robust PDF parser")
+        print("   • 🤖 AI code analysis for TERZA PARTE")
+        print("   • Improved section extraction (80% threshold)")
+        print("   • Dark/Light mode + Markdown AI")
+        print("   • 🛡️  ASan memory error detection")
+        analyzer = OllamaAnalyzer()
+        if analyzer.available:
+            print(f"   • 🤖 AI: ENABLED (code verification active)")
+        else:
+            print(f"   • 🤖 AI: DISABLED")
     else:
-        print(f"   • 🤖 AI: DISABLED")
+        print("🚀 FdP AutoCorrezione Server - v7.2")
+        print("="*70)
+        print("📍 Server: http://localhost:5000")
+        print("✨ Features:")
+        print("   • Ultra-robust PDF parser")
+        print("   • Improved section extraction (80% threshold)")
+        print("   • Dark/Light mode")
+        print("   • 🛡️  ASan memory error detection")
 
     print("="*70 + "\n")
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=False, port=5000, host='0.0.0.0', use_reloader=False)
