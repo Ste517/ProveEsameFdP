@@ -59,6 +59,7 @@ bool CampoMinato::aggiungi_mina(int righe, int colonne) {
 
 void CampoMinato::scopri(int righe, int colonne) {
     if (coordinate_scorrette(righe,colonne)) return;
+    if (bomb_amount == 0 || game_status == GAME_OVER || game_status == GAME_WON) return;
     if (campo_di_gioco[righe][colonne] == -1) {
         game_status = GAME_OVER;
         return;
@@ -91,7 +92,7 @@ CampoMinato CampoMinato::operator+(const CampoMinato &cm) const {
         for (int j = 0; j < dimensione; j++) {
             new_cm.campo_di_gioco[i][j] = campo_di_gioco[i][j] == -1 ? -1 : -2;
         }
-        for (int j = dimensione; j < new_cm.dimensione; j++) campo_di_gioco[i][j] = -2;
+        for (int j = dimensione; j < new_cm.dimensione; j++) new_cm.campo_di_gioco[i][j] = -2;
     }
     for (int i = dimensione; i < new_cm.dimensione; i++) {
         for (int j = 0; j < dimensione; j++) new_cm.campo_di_gioco[i][j] = -2;
@@ -104,7 +105,7 @@ CampoMinato CampoMinato::operator+(const CampoMinato &cm) const {
 
 CampoMinato::~CampoMinato() {
     for (int i = 0; i < dimensione; i++) {
-        if (campo_di_gioco[i]) delete campo_di_gioco[i];
+        if (campo_di_gioco[i]) delete[] campo_di_gioco[i];
     }
     if (campo_di_gioco) delete[] campo_di_gioco;
 }
