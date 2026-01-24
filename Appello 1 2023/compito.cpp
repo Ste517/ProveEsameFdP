@@ -141,4 +141,5 @@ ostream &operator<<(ostream &os, CampoMinato &cm) {
         os << "Inserire una mina per avviare il gioco\n";
         return os;
     }
+    return os;
 }
