@@ -1,7 +1,7 @@
 $year = Read-Host "Di che anno vuoi scaricare la prova?"
 
-while ($year -lt 2016 -or $year -gt (Get-Date).Year) {
-    $year = Read-Host "L'anno deve essere tra 2016 e $((Get-Date).Year). Riprova."
+while ($year -lt 2014 -or $year -gt (Get-Date).Year) {
+    $year = Read-Host "L'anno deve essere tra 2014 e $((Get-Date).Year). Riprova."
 }
 
 $validUrl = $false
